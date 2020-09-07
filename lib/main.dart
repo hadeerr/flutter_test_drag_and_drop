@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:drag_and_drop_gridview/devdrag.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,39 +28,73 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  List<String> _imageUris = [
+    "https://images.pexels.com/photos/4466054/pexels-photo-4466054.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "https://images.pexels.com/photos/4561739/pexels-photo-4561739.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    "https://images.pexels.com/photos/4507967/pexels-photo-4507967.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    "https://images.pexels.com/photos/4321194/pexels-photo-4321194.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    "https://images.pexels.com/photos/1053924/pexels-photo-1053924.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    "https://images.pexels.com/photos/1624438/pexels-photo-1624438.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+    "https://images.pexels.com/photos/1144687/pexels-photo-1144687.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+    "https://images.pexels.com/photos/2589010/pexels-photo-2589010.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+  ];
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  int variableSet = 0;
+  ScrollController _scrollController;
+  double width;
+  double height;
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Drag And drop Plugging'),
+        ),
+        body: Center(
+          child: DragAndDropGridView(
+            controller: _scrollController,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 3 / 4.5,
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
+            padding: EdgeInsets.all(20),
+            itemBuilder: (context, index) => Card(
+              elevation: 2,
+              child: LayoutBuilder(builder: (context, costrains) {
+                if (variableSet == 0) {
+                  height = costrains.maxHeight;
+                  width = costrains.maxWidth;
+                  variableSet++;
+                }
+                return GridTile(
+                  child: Image.network(
+                    _imageUris[index],
+                    height: height,
+                    width: width,
+                  ),
+                );
+              }),
             ),
-          ],
+            itemCount: _imageUris.length,
+            onWillAccept: (oldIndex, newIndex) => true,
+            onReorder: (oldIndex, newIndex) {
+              int indexOfFirstItem = _imageUris.indexOf(_imageUris[oldIndex]);
+              int indexOfSecondItem = _imageUris.indexOf(_imageUris[newIndex]);
+              String tempIndex = _imageUris[indexOfFirstItem] ;
+              _imageUris[indexOfFirstItem] = _imageUris[indexOfSecondItem];
+              _imageUris[indexOfSecondItem] = tempIndex;
+
+              setState(() {});
+            },
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
